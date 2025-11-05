@@ -1,0 +1,18 @@
+<!-- core/templates/core/profile.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h2 class="text-2xl font-bold mb-4">Your Account</h2>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Status:</strong> 
+        {% if user.profile.is_premium %}
+            <span class="text-green-600 font-semibold">Premium ✅</span>
+        {% else %}
+            <span class="text-yellow-600">Free</span> — 
+            <a href="{% url 'upgrade' %}" class="text-indigo-600">Upgrade to Premium</a>
+        {% endif %}
+    </p>
+    <a href="{% url 'home' %}" class="mt-4 inline-block text-indigo-600">← Back to Home</a>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+# render.yaml
+services:
+  - type: web
+    name: edu-collab
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "./scripts/build.sh"
+    startCommand: "gunicorn edu_collab.wsgi:application"
+    envVars:
+      - key: RENDER
+        value: "true"
+      - key: SECRET_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+    healthCheckPath: /

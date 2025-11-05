@@ -1,0 +1,26 @@
+<!-- core/templates/core/semester_detail.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+<nav class="text-sm text-gray-600 mb-6">
+    <a href="{% url 'home' %}" class="text-indigo-600 hover:underline">Home</a>
+    <span> / </span>
+    <a href="{% url 'year_detail' semester.year.year_number %}" class="text-indigo-600 hover:underline">Year {{ semester.year.year_number }}</a>
+    <span> / </span>
+    <span class="font-medium">Semester {{ semester.semester_number }}</span>
+</nav>
+
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Semester {{ semester.semester_number }}</h2>
+
+<div class="space-y-4">
+    {% for exam in exam_types %}
+        <a href="{% url 'resource_list' semester.year.year_number semester.semester_number exam.name.lower %}"
+           class="block bg-white p-5 rounded-lg shadow hover:shadow-md">
+            <div class="text-lg font-semibold">{{ exam.name }}</div>
+            <p class="text-gray-600 mt-1">{{ exam.get_name_display }}</p>
+        </a>
+    {% endfor %}
+</div>
+
+<a href="{% url 'year_detail' semester.year.year_number %}" class="inline-block mt-6 text-indigo-600 hover:underline">← Back to year</a>
+{% endblock %}
