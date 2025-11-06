@@ -2,25 +2,25 @@
 # Exit on error
 set -e
 
-# Install Python deps
+# Install Python dependencies
 pip install -r requirements.txt
 
 # Collect static files
 python manage.py collectstatic --noinput
 
-# Run migrations
+# Apply migrations
 python manage.py migrate
 
-# Create superuser if it doesn't exist
-echo "from django.contrib.auth.models import User; \
-u='Anirban'; \
-e='bandyopadhyay4u@gmail.com'; \
-p='EduCollab#123'; \
-from django.db import IntegrityError; \
-try: \
-    User.objects.create_superuser(u, e, p); \
-    print('✅ Superuser created successfully'); \
-except IntegrityError: \
-    print('⚠️ Superuser already exists'); \
-except Exception as err: \
-    print('⚠️ Error creating superuser:', err)" | python manage.py shell
+# Create superuser safely (one-liner)
+python manage.py shell <<EOF
+from django.contrib.auth.models import User
+username = "Anirban"
+email = "bandyopadhyay4u@gmail.com"
+password = "EduCollab#123"
+
+if not User.objects.filter(username=username).exists():
+    User.objects.create_superuser(username, email, password)
+    print("✅ Superuser created successfully")
+else:
+    print("⚠️ Superuser already exists")
+EOF
