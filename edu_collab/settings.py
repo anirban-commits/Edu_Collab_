@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 # ==============================
-# Paths and Basic Config
+# Base Directory and Security
 # ==============================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,9 +22,8 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 # ==============================
 # Allowed Hosts
 # ==============================
-# This prevents the 400 Bad Request error
 if DEBUG:
-    ALLOWED_HOSTS = ['*']  # For local dev
+    ALLOWED_HOSTS = ['*']  # Local development
 else:
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.onrender.com').split(',')
 
@@ -40,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core.apps.CoreConfig',
     'cloudinary',
+    'cloudinary_storage',
 ]
 
 # ==============================
@@ -47,7 +47,7 @@ INSTALLED_APPS = [
 # ==============================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # for static files on Render
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -80,7 +80,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'edu_collab.wsgi.application'
 
 # ==============================
-# Database
+# Database Configuration
 # ==============================
 if os.getenv('RENDER'):
     db_url = os.getenv('DATABASE_URL')
@@ -126,41 +126,46 @@ USE_I18N = True
 USE_TZ = True
 
 # ==============================
-# Static & Media Files
+# Static Files (CSS, JS)
 # ==============================
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
 # ==============================
-# Authentication Redirects
-# ==============================
-LOGIN_URL = 'login'
-LOGOUT_REDIRECT_URL = 'home'
-
-# ==============================
-# Cloudinary (for Render)
+# Media & Cloudinary Setup
 # ==============================
 IS_RENDER = os.getenv('RENDER', False)
 
 if IS_RENDER:
     import cloudinary
+    import cloudinary.uploader
+    import cloudinary.api
+    from cloudinary_storage.storage import MediaCloudinaryStorage
+
     cloudinary.config(
         cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', ''),
         api_key=os.getenv('CLOUDINARY_API_KEY', ''),
         api_secret=os.getenv('CLOUDINARY_API_SECRET', ''),
         secure=True
     )
+
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-    # Security settings for Render
+    # Security for Render
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+# ==============================
+# Authentication Redirects
+# ==============================
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'home'
 
 # ==============================
 # Default Auto Field
