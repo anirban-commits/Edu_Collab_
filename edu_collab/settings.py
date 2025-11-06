@@ -23,7 +23,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 # Allowed Hosts
 # ==============================
 if DEBUG:
-    ALLOWED_HOSTS = ['*']  # Local development
+    ALLOWED_HOSTS = ['*']
 else:
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.onrender.com').split(',')
 
@@ -37,7 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Local app
     'core.apps.CoreConfig',
+
+    # Cloudinary
     'cloudinary',
     'cloudinary_storage',
 ]
@@ -47,7 +51,7 @@ INSTALLED_APPS = [
 # ==============================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files for Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -82,7 +86,7 @@ WSGI_APPLICATION = 'edu_collab.wsgi.application'
 # ==============================
 # Database Configuration
 # ==============================
-if os.getenv('RENDER'):
+if os.getenv('RENDER', 'False') == 'True':
     db_url = os.getenv('DATABASE_URL')
     if db_url:
         url = urlparse(db_url)
@@ -133,16 +137,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ==============================
-# Media & Cloudinary Setup
+# Media & Cloudinary Configuration
 # ==============================
-IS_RENDER = os.getenv('RENDER', False)
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
-if IS_RENDER:
-    import cloudinary
-    import cloudinary.uploader
-    import cloudinary.api
-    from cloudinary_storage.storage import MediaCloudinaryStorage
-
+if os.getenv('RENDER', 'False') == 'True':  # Running on Render
     cloudinary.config(
         cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', ''),
         api_key=os.getenv('CLOUDINARY_API_KEY', ''),
@@ -152,10 +153,13 @@ if IS_RENDER:
 
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-    # Security for Render
+    # Django still expects these
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+    # Render security
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     MEDIA_URL = '/media/'
