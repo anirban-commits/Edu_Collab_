@@ -3,7 +3,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
-from cloudinary.models import CloudinaryField
 
 # Extend User with Profile (for premium status)
 class Profile(models.Model):
@@ -69,19 +68,8 @@ class Resource(models.Model):
     
     video_url = models.URLField(blank=True, help_text="YouTube embed link (e.g., https://www.youtube.com/embed/abc123)")
     
-    # Cloudinary fields for PDF storage
-    practice_sheet = CloudinaryField(
-        folder='practice_sheets/', 
-        blank=True, 
-        null=True,
-        resource_type='raw'  # Important for PDFs
-    )
-    pyq_pdf = CloudinaryField(
-        folder='pyqs/', 
-        blank=True, 
-        null=True,
-        resource_type='raw'  # Important for PDFs
-    )
+    practice_sheet = models.FileField(upload_to='practice_sheets/', blank=True, null=True)
+    pyq_pdf = models.FileField(upload_to='pyqs/', blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     is_premium = models.BooleanField(default=True, help_text="Only premium users can access this")
