@@ -143,25 +143,18 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-if os.getenv('RENDER', 'False') == 'True':  # Running on Render
+RENDER_ACTIVE = os.getenv('RENDER', '').lower() == 'true'  # 👈 THIS IS THE FIX
+
+if RENDER_ACTIVE:
     cloudinary.config(
-        cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', ''),
-        api_key=os.getenv('CLOUDINARY_API_KEY', ''),
-        api_secret=os.getenv('CLOUDINARY_API_SECRET', ''),
+        cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+        api_key=os.getenv('CLOUDINARY_API_KEY'),
+        api_secret=os.getenv('CLOUDINARY_API_SECRET'),
         secure=True
     )
 
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-    # 🔥 CRITICAL: Force PDFs to be uploaded as raw files
-    # import cloudinary_storage
-    # cloudinary_storage.settings.CLOUDINARY_RAW_FILE_EXTENSIONS = ['pdf', 'doc', 'docx', 'txt', 'zip']
-
-    # 🔥 DO NOT set MEDIA_URL or MEDIA_ROOT in production
-    # MEDIA_URL = '/media/'
-    # MEDIA_ROOT = BASE_DIR / 'media'
-
-    # Render security
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 else:
