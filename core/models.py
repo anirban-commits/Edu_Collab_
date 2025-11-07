@@ -3,8 +3,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
-from cloudinary.models import CloudinaryField  # ← Added for Cloudinary support
-
 
 # Extend User with Profile (for premium status)
 class Profile(models.Model):
@@ -74,26 +72,9 @@ class Resource(models.Model):
     
     video_url = models.URLField(blank=True, help_text="YouTube embed link (e.g., https://www.youtube.com/embed/abc123)")
     
-    # ✅ Updated to use CloudinaryField with raw resource_type for PDFs
-    practice_sheet = CloudinaryField(
-        'file',
-        folder='practice_sheets',
-        resource_type='raw',
-        blank=True,
-        null=True,
-        use_filename=True,
-        unique_filename=False
-    )
-    
-    pyq_pdf = CloudinaryField(
-        'file',
-        folder='pyqs',
-        resource_type='raw',
-        blank=True,
-        null=True,
-        use_filename=True,
-        unique_filename=False
-    )
+    # ✅ Use standard FileField — Cloudinary upload is handled by DEFAULT_FILE_STORAGE
+    practice_sheet = models.FileField(upload_to='practice_sheets/', blank=True, null=True)
+    pyq_pdf = models.FileField(upload_to='pyqs/', blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     is_premium = models.BooleanField(default=True, help_text="Only premium users can access this")
