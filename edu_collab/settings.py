@@ -154,8 +154,8 @@ if os.getenv('RENDER', 'False') == 'True':  # Running on Render
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
     # 🔥 CRITICAL: Force PDFs to be uploaded as raw files
-    import cloudinary_storage
-    cloudinary_storage.settings.CLOUDINARY_RAW_FILE_EXTENSIONS = ['pdf', 'doc', 'docx', 'txt', 'zip']
+    # import cloudinary_storage
+    # cloudinary_storage.settings.CLOUDINARY_RAW_FILE_EXTENSIONS = ['pdf', 'doc', 'docx', 'txt', 'zip']
 
     # 🔥 DO NOT set MEDIA_URL or MEDIA_ROOT in production
     # MEDIA_URL = '/media/'
