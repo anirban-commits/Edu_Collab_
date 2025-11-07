@@ -3,6 +3,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from cloudinary.models import CloudinaryField  # ← Added for Cloudinary support
+
 
 # Extend User with Profile (for premium status)
 class Profile(models.Model):
@@ -11,6 +13,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {'Premium' if self.is_premium else 'Free'}"
+
 
 # Academic Year (1 to 4)
 class AcademicYear(models.Model):
@@ -28,6 +31,7 @@ class AcademicYear(models.Model):
     def __str__(self):
         return f"Year {self.year_number}"
 
+
 # Semester (1 or 2) within a year
 class Semester(models.Model):
     SEMESTER_CHOICES = [
@@ -44,6 +48,7 @@ class Semester(models.Model):
     def __str__(self):
         return f"Year {self.year.year_number}, Semester {self.semester_number}"
 
+
 # Exam Type (MST1, MST2, EST)
 class ExamType(models.Model):
     name = models.CharField(max_length=10, unique=True, choices=[
@@ -54,6 +59,7 @@ class ExamType(models.Model):
 
     def __str__(self):
         return self.name
+
 
 # Resource: The core content (PYQs, videos, sheets, etc.)
 class Resource(models.Model):
@@ -68,8 +74,26 @@ class Resource(models.Model):
     
     video_url = models.URLField(blank=True, help_text="YouTube embed link (e.g., https://www.youtube.com/embed/abc123)")
     
-    practice_sheet = models.FileField(upload_to='practice_sheets/', blank=True, null=True)
-    pyq_pdf = models.FileField(upload_to='pyqs/', blank=True, null=True)
+    # ✅ Updated to use CloudinaryField with raw resource_type for PDFs
+    practice_sheet = CloudinaryField(
+        'file',
+        folder='practice_sheets',
+        resource_type='raw',
+        blank=True,
+        null=True,
+        use_filename=True,
+        unique_filename=False
+    )
+    
+    pyq_pdf = CloudinaryField(
+        'file',
+        folder='pyqs',
+        resource_type='raw',
+        blank=True,
+        null=True,
+        use_filename=True,
+        unique_filename=False
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     is_premium = models.BooleanField(default=True, help_text="Only premium users can access this")
